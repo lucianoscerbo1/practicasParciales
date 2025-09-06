@@ -1,5 +1,6 @@
 import Text.Show.Functions ()
 import Distribution.TestSuite (OptionType(optionFileExtensions))
+import Data.Array (listArray)
 data Atraccion = Atraccion {
 
     nombre :: String,
@@ -19,7 +20,11 @@ data Reparaciones = Reparaciones {
 
 type TrabajoReparacion = Atraccion -> Atraccion
 
-parque1 = Atraccion { nombre= "Hola", alturaMinima = 110, duracion = 5, opiniones = ["Grosa", "Buena", "Picante"], mantenimiento = False, listaDeReparaciones = [], score = 0} 
+parque1 :: Atraccion
+parque1 = Atraccion { nombre= "Hola", alturaMinima = 110, duracion = 5, opiniones = ["Grosa", "Buena", "Picante"], mantenimiento = False, listaDeReparaciones = [ reparacion1 ], score = 0} 
+
+reparacion1 :: Reparaciones
+reparacion1 = Reparaciones { duracionReparacion = 5 , trabajo = ajusteDeTornilleria 3}
 
 cantidadReparaciones :: Atraccion -> Int
 cantidadReparaciones  = length . listaDeReparaciones 
@@ -83,4 +88,9 @@ mantenimientoBasico  = flip engrase 10 .  ajusteDeTornilleria 8
 --ajusteTornillos  Atraccion -> Atraccion    engrase ATRACCION -> Flloat -> Atraccion, tuve que poner flip porque engrase espera primero atraccion y luego la grasa
 -- yo estoyt pasando rprimero la grasa
 
-meDaMiedito atraccion = 
+--duracionReparacion es una funcion propia de Reparaciones
+meDaMiedito :: Atraccion -> Bool
+meDaMiedito atraccion =            any ( (>4). duracionReparacion) $  listaDeReparaciones atraccion
+
+-- any condicio--duracion reparacion devuelve un entero , que compara con >4 y devuelve el booleano
+
