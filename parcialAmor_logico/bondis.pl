@@ -16,11 +16,13 @@ recorrido(160, caba, medrano).
 recorrido(24, caba, corrientes).
 
 %conviene hacer beneficiario y personas por distinto lado.
-persona(juanita).
 persona(pepito).
+persona(juanita).
+persona(tito).
 persona(marta).
 
-beneficiario(juanita, estudiantil(50)).
+
+beneficiario(juanita, estudiantil).
 beneficiario(pepito, casasParticulares(gba(oeste))).
 beneficiario(marta, jubilada).
 beneficiario(marta, casasParticulares(caba)).
@@ -53,6 +55,61 @@ bonoZonal(Linea,50):-
 
 bonoZonal(Linea, 0):-
     not(pasaPorDistintasZonas(Linea)).
+
+%a los jubilados le sale la mitad.
+beneficio(jubilada,Linea,Costo):-
+    valorNormalBoleto(Linea, CostoParcial),
+    Costo is CostoParcial/2.
+
+
+%A los estudiantes 50 pesos.
+beneficio(estudiantil, _, 50).
+
+%beneficio de zona, debe coicnidar con las casasParticlares
+beneficio(casasParticulares(Zona),Linea,0):-
+    recorrido(Linea, Zona, _).
+
+
+%Este seria el predicado final
+/*
+el boleto depende de los beneficios que tenga la persona
+Si es estudiantil el boleto siempre vale 50 no importa cual sea la linea
+Si es casasParticulares debe coincidir la zona entre linea y beneficiario para etar subsidiado
+Si es jubilado cuesta la mitad en todas las lineas.
+No se acumulan beneficios
+Ahora bien, una persona tiene varios beneficios pero el valor del boleto debe
+ser el minimo, osea que no sea acumulan solo se aplica el beneficio
+que le reduce el boleto lo mas posible
+Me interesa la persona, la linea y su valor
+Luego si es beneficiario o no y cual es su beneficio
+lueog ver uantos beneficios tiene
+ */
+
+posiblesBeneficios(Persona,Linea,ValorBeneficio):-
+    beneficiario(Persona,Beneficio),
+    beneficio(Beneficio,Linea, ValorBeneficio).
+
+costoViaje(Persona, Linea, Valor):-
+    beneficiario(Persona, _),
+    recorrido(Linea, _, _),
+    posiblesBeneficios(Persona, Linea, ValorBeneficio),
+    forall( (posiblesBeneficios(Persona,Linea, OtroValor), Valor\= ValorBeneficio), Valor < OtroValor).
+
+
+%si una persona no tiene beneficios, paga el valor normal.
+
+costoViaje(Persona, Linea, Costo):-
+    persona(Persona),
+    valorNormalBoleto(Linea,Costo),
+    not(beneficiario(Persona,_)).
+
+
+
+
+
+
+
+
 
 %auxiliar
 cantidadCalles(Linea, Cantidad):-
